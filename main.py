@@ -1,0 +1,104 @@
+# main.py
+import os
+import sys
+import logging
+from pathlib import Path
+
+PROJECT_DIR = Path(__file__).resolve().parent
+RUN_DIR = PROJECT_DIR / "run"
+LOG_DIR = RUN_DIR / "logs"
+for d in [LOG_DIR, PROJECT_DIR / "data" / "test"]:
+    d.mkdir(parents=True, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(str(LOG_DIR / "cli.log"), encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
+)
+
+if sys.platform == "linux":
+    local_lib = RUN_DIR / "lib" / "usr" / "lib" / "x86_64-linux-gnu"
+    if local_lib.is_dir():
+        os.environ.setdefault("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH"] = f"{local_lib}:{os.environ['LD_LIBRARY_PATH']}".rstrip(":")
+    local_qt = RUN_DIR / "qt5-plugins"
+    if (local_qt / "platforminputcontexts").is_dir():
+        os.environ["QT_PLUGIN_PATH"] = str(local_qt)
+    os.environ.setdefault("QT_IM_MODULE", "fcitx")
+    os.environ.setdefault("GTK_IM_MODULE", "fcitx")
+    os.environ.setdefault("XMODIFIERS", "@im=fcitx")
+
+from core.memory_engine import memories
+from core.memory_engine import get_model
+from config.constants import BOT_NAME
+from utils.persistence import load_all_data, save_all_data, load_state, save_state, append_dialogue
+from core.cognition import generate_response
+from core.virtual_clock import clock
+from utils.monitor import monitor_start
+
+# 批量注入函数
+def cold_start_batch_injection():
+    """批量注入冷启动记忆，用于初始化记忆库。
+
+    冷启动对话内联于此。
+    """
+    COLD_START_DIALOGS = [
+        ("你好，请问你是谁？", f"我是{BOT_NAME}，很高兴认识你。"),
+        (f"{BOT_NAME}，你叫什么名字？", f"我叫{BOT_NAME}。"),
+    ]
+    from core.memory_engine import create_memory, add_link
+    from utils.dialogue_state import set_state, get_state
+
+    for user_text, bot_text in COLD_START_DIALOGS:
+        user_mem_id = create_memory(user_text, half_life=7*24*3600)
+        bot_mem_id = create_memory(f"我说：{bot_text}", half_life=7*24*3600)
+        add_link(user_mem_id, bot_mem_id, 0.8, "causal")
+
+    state = get_state()
+    state["参与者"] = [BOT_NAME]
+    set_state(state)
+    print(f"[冷启动] 已注入 {len(COLD_START_DIALOGS)} 条基础记忆")
+
+def main():
+    monitor_start()
+    clock.enable_qq_mode()
+    get_model()
+    load_all_data()
+    load_state()
+    global memories
+    if not memories:
+        cold_start_batch_injection()
+        save_all_data()
+        save_state()
+    print(f"Nascence{BOT_NAME} v0.5.3")
+    print("输入 'exit' 退出")
+    
+    try:
+        while True:
+            clock.update_state()
+            user_input = input("你: ").strip()
+            if not user_input:
+                continue
+            if user_input.lower() == "exit":            # 退出操作
+                break
+            elif user_input.lower() == "move":
+                from utils.persistence import migrate_json_to_sqlite
+                migrate_json_to_sqlite()
+            clock.on_user_input()
+            reply, user_input = generate_response(user_input)
+            append_dialogue(user_input, reply)
+            print(f"{BOT_NAME}: {reply}")
+    except (EOFError, KeyboardInterrupt):
+        print("发生错误！")
+    finally:
+        save_all_data()
+        save_state()
+        from core.model_backend import stop_all_backends
+        stop_all_backends()   # 结束本次运行的 llama-server 进程
+        print("再见。")
+
+if __name__ == "__main__":
+    main()

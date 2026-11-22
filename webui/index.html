@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NASCENCE · 辉夜 控制面板</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/admin_static/style.css">
+</head>
+<body>
+<!-- ======== 顶栏：品牌 | 居中导航 | 操作 ======== -->
+<header id="topbar">
+  <div class="topbar-left">
+    <div class="brand-logo">♾</div>
+    <div class="brand-text">
+      <div class="brand-title">NASCENCE · 辉夜</div>
+      <div class="brand-sub">控制面板</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <nav id="nav">
+      <button class="tab active" data-tab="overview">总览</button>
+      <button class="tab" data-tab="users">用户</button>
+      <button class="tab" data-tab="logs">日志</button>
+      <button class="tab" data-tab="tools">工具</button>
+      <button class="tab" data-tab="config">配置</button>
+    </nav>
+    <button id="btnNavToggle" title="目录">☰</button>
+  </div>
+  <div class="topbar-right">
+    <div class="status-badge" id="globalStatus">正在初始化</div>
+    <button class="theme-toggle" id="btnTheme">跟随系统</button>
+    <button id="btnAdminLogout" title="退出管理员登录">退出登录</button>
+  </div>
+</header>
+
+<!-- 窄屏展开的导航（居中向下、横向；与导航栏一致，不做标签卡） -->
+<div id="navDropdown">
+  <button class="dd-item active" data-tab="overview">总览</button>
+  <button class="dd-item" data-tab="users">用户</button>
+  <button class="dd-item" data-tab="logs">日志</button>
+  <button class="dd-item" data-tab="tools">工具</button>
+  <button class="dd-item" data-tab="config">配置</button>
+</div>
+
+<main>
+  <!-- ======== 总览 ======== -->
+  <section id="overview" class="page active">
+    <div class="card-stack">
+      <div class="gauges">
+        <div class="gauge-card">
+          <div class="gauge-info"><div class="gauge-label">CPU 使用率</div><div class="gauge-value" id="sysCpu">--</div><div class="gauge-sub" id="sysCpuCount"></div></div>
+          <div class="gauge-ring" id="ringCpu"><svg viewBox="0 0 78 78"><circle class="track" cx="39" cy="39" r="33" fill="none" stroke-width="7"/><circle class="val" cx="39" cy="39" r="33" fill="none" stroke-width="7"/></svg><div class="pct">--</div></div>
+        </div>
+        <div class="gauge-card">
+          <div class="gauge-info"><div class="gauge-label">内存占用</div><div class="gauge-value" id="sysMem">--</div><div class="gauge-sub" id="sysMemSub"></div></div>
+          <div class="gauge-ring" id="ringMem"><svg viewBox="0 0 78 78"><circle class="track" cx="39" cy="39" r="33" fill="none" stroke-width="7"/><circle class="val" cx="39" cy="39" r="33" fill="none" stroke-width="7"/></svg><div class="pct">--</div></div>
+        </div>
+        <div class="gauge-card">
+          <div class="gauge-info"><div class="gauge-label">磁盘占用</div><div class="gauge-value" id="sysDisk">--</div><div class="gauge-sub" id="sysDiskSub"></div></div>
+          <div class="gauge-ring" id="ringDisk"><svg viewBox="0 0 78 78"><circle class="track" cx="39" cy="39" r="33" fill="none" stroke-width="7"/><circle class="val" cx="39" cy="39" r="33" fill="none" stroke-width="7"/></svg><div class="pct">--</div></div>
+        </div>
+        <div class="gauge-card">
+          <div class="gauge-info"><div class="gauge-label">进程数</div><div class="gauge-value" id="sysProc">--</div><div class="gauge-sub" id="sysLoad">--</div></div>
+          <div class="gauge-ring ok" id="ringProc"><svg viewBox="0 0 78 78"><circle class="track" cx="39" cy="39" r="33" fill="none" stroke-width="7"/><circle class="val" cx="39" cy="39" r="33" fill="none" stroke-width="7"/></svg><div class="pct">--</div></div>
+        </div>
+      </div>
+      <div class="notice" id="sysNotice" style="display:none"></div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">概览</span><span class="card-sub" id="sysPlatform">--</span></div>
+        <div class="card-body">
+          <div class="stat-grid">
+            <div class="stat-item"><div class="k">用户总数</div><div class="v" id="ovUsers">--</div></div>
+            <div class="stat-item"><div class="k">活跃用户</div><div class="v" id="ovActive">--</div></div>
+            <div class="stat-item"><div class="k">热记忆节点</div><div class="v accent" id="statMem">--</div></div>
+            <div class="stat-item"><div class="k">记忆链接</div><div class="v accent" id="statLinks">--</div></div>
+            <div class="stat-item"><div class="k">词网规模</div><div class="v accent" id="statWords">--</div></div>
+            <div class="stat-item"><div class="k">运行时间</div><div class="v small" id="statRuntime">--</div><div class="k" id="ovClock">--</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <span class="label">认知循环</span><span class="badge" id="qqStatusBadge">已停止</span>
+            <button class="btn small" id="btnQQStart">启动认知循环</button>
+            <button class="btn secondary small" id="btnQQStop">停止认知循环</button>
+            <button class="btn secondary small" id="btnSave">立即保存全部数据</button>
+          </div>
+          <div class="notice" id="statusDisplay" style="margin-top:8px">等待状态信息...</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">用户</span><span class="card-sub">点击卡片查看该用户</span></div>
+        <div class="card-body"><div class="user-list" id="ovUserList"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 用户 ======== -->
+  <section id="users" class="page">
+    <div class="card-stack">
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">用户列表</span><span class="card-sub" id="userListCount">--</span></div>
+        <div class="card-body">
+          <div class="user-search-row">
+            <input type="text" id="userSearchInput" placeholder="🔍 搜索用户名 / user_id / 角色...">
+            <button class="btn secondary small" id="btnUserSearchClear" title="清空搜索">清空</button>
+          </div>
+          <div class="user-list" id="userList"></div>
+        </div>
+      </div>
+
+      <div class="menu-card" id="userDetail" style="display:none">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">用户 · <span id="userDetailName">--</span></span>
+          <span class="card-sub" id="userDetailRole">--</span>
+        </div>
+        <div class="card-body">
+          <div class="subtabs">
+            <button class="subtab active" data-sub="uov">概况</button>
+            <button class="subtab" data-sub="ulog">日志</button>
+            <button class="subtab" data-sub="umaint">维护</button>
+          </div>
+
+          <div class="subpage active" id="sub-uov">
+            <table class="kv">
+              <tr><td>用户名</td><td id="uovName">--</td></tr>
+              <tr><td>角色</td><td id="uovRole">--</td></tr>
+              <tr><td>user_id</td><td id="uovUid">--</td></tr>
+              <tr><td>记忆节点 / 链接</td><td id="uovMem">--</td></tr>
+              <tr><td>消息总数</td><td id="uovMsgs">--</td></tr>
+              <tr><td>绑定学生</td><td id="uovLinked">--</td></tr>
+              <tr><td>被绑定信息</td><td id="uovBoundBy">--</td></tr>
+              <tr><td>worker 进程</td><td id="uovWorker">--</td></tr>
+              <tr><td>心跳 / 空闲</td><td id="uovHeartbeat">--</td></tr>
+              <tr><td>认知循环</td><td id="uovCog">--</td></tr>
+            </table>
+          </div>
+
+          <div class="subpage" id="sub-ulog">
+            <div class="log-toolbar">
+              <button class="btn secondary small" id="btnUserLogRefresh">刷新</button>
+              <label class="muted"><input type="checkbox" id="userLogAuto" checked> 自动滚动</label>
+            </div>
+            <div class="log-view" id="userLogView"></div>
+          </div>
+
+          <div class="subpage" id="sub-umaint">
+            <div class="notice">维护操作会在需要时拉起该用户的独立进程（首次拉起需加载记忆，可能数秒）；同一用户的操作会串行执行。查看不会拉起进程。</div>
+            <div class="row" style="margin-top:12px">
+              <button class="btn small" data-umaint="rebuild_index">重建向量索引</button>
+              <button class="btn small" data-umaint="sleep_maintenance">睡眠维护(巩固/保存)</button>
+              <button class="btn small" data-umaint="purge_expired">清理衰变记忆</button>
+            </div>
+            <div class="row">
+              <button class="btn small secondary" data-umaint="cognition_start">启动该用户认知循环</button>
+              <button class="btn small secondary" data-umaint="cognition_stop">停止该用户认知循环</button>
+            </div>
+            <div class="notice" id="userMaintResult" style="margin-top:8px">尚无操作</div>
+
+            <!-- 账号安全：修改密码 -->
+            <div class="maint-section">
+              <div class="maint-title">🔑 修改密码</div>
+              <div class="notice">为该用户设置新密码。保存后该用户<strong>所有已登录设备会立即被强制下线</strong>，需用新密码重新登录。</div>
+              <div class="row" style="margin-top:8px">
+                <input type="password" id="userNewPassword" placeholder="新密码（至少 4 位）" autocomplete="new-password" style="max-width:240px">
+                <button class="btn small" id="btnUserSetPassword">修改该用户密码</button>
+                <span class="muted" id="userPasswordMsg"></span>
+              </div>
+            </div>
+
+            <!-- 账号安全：封禁 / 解封 -->
+            <div class="maint-section">
+              <div class="maint-title">🚫 封禁 / 解封</div>
+              <div class="notice">封禁后该用户<strong>无法登录</strong>（即使密码正确），且已登录会话会立即失效、实时连接被断开。</div>
+              <div class="row" style="margin-top:8px">
+                <span class="badge" id="userBanBadge">状态加载中…</span>
+              </div>
+              <div class="row">
+                <input type="text" id="userBanReason" placeholder="封禁原因（可选，会展示给用户）" style="max-width:320px">
+                <button class="btn small danger" id="btnUserBan">封禁该用户</button>
+                <button class="btn small secondary" id="btnUserUnban" style="display:none">解除封禁</button>
+                <span class="muted" id="userBanMsg"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="empty" id="userEmptyHint">请选择上方的一个用户</div>
+    </div>
+  </section>
+
+  <!-- ======== 日志（全局） ======== -->
+  <section id="logs" class="page">
+    <div class="card-stack">
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">全局日志</span>
+          <span class="card-sub">运行日志 · 心跳 · 全部警告与报错</span>
+        </div>
+        <div class="card-body">
+          <div class="log-toolbar">
+            <button class="btn secondary small" id="btnClearLogs">清空日志</button>
+            <label class="muted"><input type="checkbox" id="logAuto" checked> 自动滚动</label>
+          </div>
+          <div class="log-view" id="logView"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 配置 ======== -->
+  <section id="config" class="page">
+    <div class="card-stack">
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">Bot 名字</span></div>
+        <div class="card-body">
+          <div class="muted">修改机器人名字。保存后需重启进程才能生效。</div>
+          <div class="row"><div class="label">Bot 名字</div><input type="text" id="botNameInput" placeholder="辉夜" style="flex:1"></div>
+          <div class="row"><button class="btn" id="btnSaveBotName">保存</button><span class="muted" id="botNameHint"></span></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">机器人头像</span></div>
+        <div class="card-body">
+          <div class="muted">上传的图片会作为客户端聊天里机器人的头像（固定文件名，覆盖旧图）。未上传时显示默认头像。</div>
+          <div class="row">
+            <input type="file" id="botAvatarFile" accept="image/jpeg,image/png,image/webp" style="flex:1">
+            <button class="btn" id="btnUploadBotAvatar">上传头像</button>
+            <span class="muted" id="botAvatarHint"></span>
+          </div>
+          <div class="row"><img id="botAvatarPreview" style="width:56px;height:56px;display:none;object-fit:cover;background:#eee" alt="头像预览"></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">服务端监听端口</span></div>
+        <div class="card-body">
+          <div class="muted">保存后实时生效（无需重启）。客户端连接地址将同步更新。</div>
+          <div class="row"><div class="label">端口号</div><input type="number" id="serverPortInput" placeholder="8787" min="1" max="65535" style="flex:1"></div>
+          <div class="row"><button class="btn" id="btnSavePort">保存端口</button><span class="muted" id="portHint"></span></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">网页版客户端端口</span></div>
+        <div class="card-body">
+          <div class="muted">随服务器运行的网页版客户端监听端口，保存后实时生效（无需重启）。</div>
+          <div class="row"><div class="label">端口号</div><input type="number" id="clientPortInput" placeholder="8987" min="1" max="65535" style="flex:1"></div>
+          <div class="row"><button class="btn" id="btnSaveClientPort">保存客户端端口</button><span class="muted" id="clientPortHint"></span></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">认知循环</span></div>
+        <div class="card-body">
+          <div class="muted">开启后，服务启动即自动启动认知循环（无需在页面点击），适合无图形界面的服务器场景。保存后需重启进程生效。</div>
+          <div class="row">
+            <label class="label" style="display:flex;align-items:center;gap:8px;min-width:auto">
+              <input type="checkbox" id="autoCognitionCheck"><span>启动时自动启动认知循环</span>
+            </label>
+            <button class="btn" id="btnSaveAutoCognition">保存</button>
+            <span class="muted" id="autoCognitionHint"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">宵禁时间</span></div>
+        <div class="card-body">
+          <div class="muted">到点后认知循环进入睡眠暂停，到起床时间自动恢复。支持跨天（如 23:00 – 07:00）；起止相同=不宵禁。保存后即时生效。</div>
+          <div class="row">
+            <span class="label">入睡</span><input type="time" id="sleepStartInput" style="width:auto">
+            <span class="label" style="min-width:auto">起床</span><input type="time" id="sleepEndInput" style="width:auto">
+            <button class="btn" id="btnSaveSleep">保存</button>
+            <span class="muted" id="sleepHint"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">模型</span></div>
+        <div class="card-body">
+          <div class="notice">三个能力（文本 / 语义向量 / 多模态图片）均可选择「本地默认模型」或「外部 API」。本地默认模型由 llama.cpp 加载。</div>
+          <div id="modelCards"></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head"><span class="card-title">全局维护工具</span><span class="card-sub">面向管理员</span></div>
+        <div class="card-body">
+          <div class="muted">伪造思考：模拟 bot 内心思考流程，写入历史与记忆库。</div>
+          <textarea id="fakeThinkInput" placeholder="输入要让 bot 思考的内容"></textarea>
+          <div class="row"><button class="btn small" id="btnFakeThink">伪造思考</button></div>
+
+          <div class="divider"></div>
+          <div class="muted">管理员记忆注入：直接写入记忆图并立即持久化。</div>
+          <textarea id="memInput" placeholder="输入要植入的记忆"></textarea>
+          <div class="row"><button class="btn small" id="btnInject">注入并保存记忆</button></div>
+
+          <div class="divider"></div>
+          <div class="muted">语义向量维度重建：当 embed 维度与索引不一致时全量重建。</div>
+          <div class="row">
+            <span class="label">当前存储</span><span id="dimStored">--</span>
+            <span class="label" style="min-width:auto">模型输出</span><span id="dimModel">--</span>
+            <span class="label" style="min-width:auto">记忆总数</span><span id="dimCount">--</span>
+          </div>
+          <div class="row">
+            <span class="label">目标维度</span>
+            <input type="number" id="dimTarget" placeholder="留空=按模型维度" style="width:180px">
+            <button class="btn small" id="btnRebuildDim">开始全量重建</button>
+            <span class="muted" id="dimProgress"></span>
+          </div>
+          <div class="notice" id="dimLog" style="max-height:180px;overflow:auto;">尚无任务记录</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 工具 ======== -->
+  <section id="tools" class="page">
+    <div class="card-stack">
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">全站广播</span>
+          <span class="card-sub" id="broadcastStatus">未启用</span>
+        </div>
+        <div class="card-body">
+          <div class="notice">
+            广播内容会持久化保存。所有客户端<strong>每次打开页面后</strong>都会弹窗展示，用户可选择「好的」（下次仍提醒）或「不再提醒」（本条内容不再打扰）。内容修改保存后，会作为新广播再次提醒所有用户。
+          </div>
+          <div class="row" style="margin-top:10px">
+            <label class="muted"><input type="checkbox" id="broadcastEnabled"> 启用广播（客户端打开时弹窗）</label>
+          </div>
+          <div class="md-editor" style="margin-top:10px">
+            <div class="md-toolbar">
+              <button type="button" class="btn secondary small" data-md="bold" title="加粗"><b>B</b></button>
+              <button type="button" class="btn secondary small" data-md="italic" title="斜体"><i>I</i></button>
+              <button type="button" class="btn secondary small" data-md="strike" title="删除线"><s>S</s></button>
+              <button type="button" class="btn secondary small" data-md="h2" title="标题">H</button>
+              <button type="button" class="btn secondary small" data-md="ul" title="无序列表">• 列表</button>
+              <button type="button" class="btn secondary small" data-md="ol" title="有序列表">1. 列表</button>
+              <button type="button" class="btn secondary small" data-md="quote" title="引用">&gt; 引用</button>
+              <button type="button" class="btn secondary small" data-md="code" title="行内代码">&lt;/&gt;</button>
+              <button type="button" class="btn secondary small" data-md="link" title="链接">🔗 链接</button>
+              <button type="button" class="btn secondary small" data-md="hr" title="分割线">— 分割</button>
+            </div>
+            <div class="md-panes">
+              <textarea id="broadcastEditor" class="md-input" placeholder="在此输入 Markdown 内容，例如：&#10;# 更新公告&#10;- 修复了若干问题&#10;**请注意**保存时间。"></textarea>
+              <div class="md-preview markdown-body" id="broadcastPreview"></div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn small" id="btnBroadcastSave">保存并发布</button>
+            <button class="btn secondary small" id="btnBroadcastDisable">关闭广播</button>
+            <button class="btn secondary small" id="btnBroadcastReload">重新载入</button>
+            <span class="muted" id="broadcastMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 实时广播卡片（直接发送，在线用户立即弹窗，仅限实时这一次） -->
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">实时广播</span>
+          <span class="card-sub">在线用户立即弹窗 · 仅限实时这一次</span>
+        </div>
+        <div class="card-body">
+          <div class="notice">
+            编辑后点击「立即发送实时广播」，所有当前<strong>在线的客户端会立即弹出广播窗口</strong>。用户关闭后即消失，不会持久化提醒，刷新不会再次弹出。
+          </div>
+          <div class="md-editor" style="margin-top:10px">
+            <div class="md-toolbar">
+              <button type="button" class="btn secondary small" data-md-inst="bold" title="加粗"><b>B</b></button>
+              <button type="button" class="btn secondary small" data-md-inst="italic" title="斜体"><i>I</i></button>
+              <button type="button" class="btn secondary small" data-md-inst="strike" title="删除线"><s>S</s></button>
+              <button type="button" class="btn secondary small" data-md-inst="h2" title="标题">H</button>
+              <button type="button" class="btn secondary small" data-md-inst="ul" title="无序列表">• 列表</button>
+              <button type="button" class="btn secondary small" data-md-inst="ol" title="有序列表">1. 列表</button>
+              <button type="button" class="btn secondary small" data-md-inst="quote" title="引用">&gt; 引用</button>
+              <button type="button" class="btn secondary small" data-md-inst="code" title="行内代码">&lt;/&gt;</button>
+              <button type="button" class="btn secondary small" data-md-inst="link" title="链接">🔗 链接</button>
+              <button type="button" class="btn secondary small" data-md-inst="hr" title="分割线">— 分割</button>
+            </div>
+            <div class="md-panes">
+              <textarea id="instantEditor" class="md-input" placeholder="输入即时要广播的 Markdown 消息，例如：&#10;**紧急通知**：服务将在 5 分钟后进行热重启，请稍候。"></textarea>
+              <div class="md-preview markdown-body" id="instantPreview"></div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn small" id="btnInstantSend">📢 立即发送实时广播</button>
+            <button class="btn secondary small" id="btnInstantClear">清空输入</button>
+            <span class="muted" id="instantMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- IP 访问控制卡片（白名单 IP / 黑名单 IP 管理，高频封禁与开放，单 IP 限制 10次/秒） -->
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">IP 访问控制</span>
+          <span class="card-sub" id="ipRulesSummary">限流 10次/秒 · 白名单豁免 · 黑名单阻断</span>
+        </div>
+        <div class="card-body">
+          <div class="notice">
+            当前全站单 IP 访问频率限制已配置为 <strong>每秒最多 10 次请求</strong>。<br>
+            • <strong>白名单 IP</strong>：完全信任，<strong>豁免</strong>每秒 10 次限流与登录密码防爆破封禁，保证高频网络环境正常通信；<br>
+            • <strong>黑名单 IP</strong>：恶意来源，直接<strong>全站阻断</strong>并返回 403 拒绝访问。<br>
+            当前检测到您的 IP 地址为：<strong id="currentAdminIp">--</strong>（可点击快速添加为白名单）。
+          </div>
+
+          <div class="ip-rules-grid">
+            <!-- 白名单列 -->
+            <div class="ip-rule-col">
+              <div class="ip-col-header">
+                <span class="ip-col-title">🟢 白名单 IP（豁免限流与封禁）</span>
+                <span class="badge ok" id="whitelistCount">0</span>
+              </div>
+              <div class="ip-input-row">
+                <input type="text" id="inputWhitelistIp" placeholder="输入 IP 地址（如 192.168.1.100）">
+                <button class="btn small" id="btnAddWhitelistIp">添加</button>
+              </div>
+              <div class="ip-tag-list" id="whitelistBox">
+                <div class="empty">暂无白名单 IP</div>
+              </div>
+            </div>
+
+            <!-- 黑名单列 -->
+            <div class="ip-rule-col">
+              <div class="ip-col-header">
+                <span class="ip-col-title">🔴 黑名单 IP（全站直接阻断）</span>
+                <span class="badge err" id="blacklistCount">0</span>
+              </div>
+              <div class="ip-input-row">
+                <input type="text" id="inputBlacklistIp" placeholder="输入 IP 地址（如 45.12.34.56）">
+                <button class="btn small danger" id="btnAddBlacklistIp">封禁 IP</button>
+              </div>
+              <div class="ip-tag-list" id="blacklistBox">
+                <div class="empty">暂无黑名单 IP</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn secondary small" id="btnReloadIpRules">重新载入规则</button>
+            <span class="muted" id="ipRulesActionMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 账号封禁名单（黑名单=已封禁账号，白名单=正常账号） -->
+      <div class="menu-card">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">账号封禁名单</span>
+          <span class="card-sub" id="banSummary">白名单可正常登录 · 黑名单账号无法登录且会话会被强制下线</span>
+        </div>
+        <div class="card-body">
+          <div class="notice">
+            • <strong>白名单（正常）</strong>：可正常登录使用。点击「封禁」可将其加入黑名单；<br>
+            • <strong>黑名单（已封禁）</strong>：无法登录（即使密码正确），封禁瞬间会吊销其全部登录会话并断开实时连接，点击「解封」恢复其登录权限。<br>
+            单用户的封禁/解封也可在「用户 → 维护」页操作。
+          </div>
+
+          <!-- 与上方「IP 访问控制」保持一致：白名单在左、黑名单在右，避免记错位置按错 -->
+          <div class="ip-rules-grid">
+            <!-- 白名单列（正常账号） -->
+            <div class="ip-rule-col">
+              <div class="ip-col-header">
+                <span class="ip-col-title">🟢 白名单（正常账号）</span>
+                <span class="badge ok" id="normalAccountCount">0</span>
+              </div>
+              <div class="ip-input-row">
+                <input type="text" id="inputAccountSearch" placeholder="搜索用户名 / user_id">
+              </div>
+              <div class="ip-tag-list" id="normalAccountBox">
+                <div class="empty">暂无用户</div>
+              </div>
+            </div>
+
+            <!-- 黑名单列（已封禁账号） -->
+            <div class="ip-rule-col">
+              <div class="ip-col-header">
+                <span class="ip-col-title">🔴 黑名单（已封禁账号）</span>
+                <span class="badge err" id="bannedAccountCount">0</span>
+              </div>
+              <div class="ip-input-row">
+                <input type="text" id="inputBanUser" placeholder="输入用户名（如 zhangsan）">
+                <input type="text" id="inputBanReason" placeholder="封禁原因（可选）" style="max-width:160px">
+                <button class="btn small danger" id="btnBanAccount">封禁</button>
+              </div>
+              <div class="ip-tag-list" id="bannedAccountBox">
+                <div class="empty">暂无已封禁账号</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn secondary small" id="btnReloadBans">重新载入名单</button>
+            <span class="muted" id="banActionMsg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 在线更新结果（默认收起，点页脚「检查更新」后自动展开；沿用本页卡片样式） -->
+      <div class="menu-card" id="update-panel" style="display:none;">
+        <div class="pixel-block"></div>
+        <div class="card-head">
+          <span class="card-title">在线更新</span>
+          <button class="btn small secondary" id="btnCloseUpdateModal">收起</button>
+        </div>
+        <div class="card-body">
+          <div class="notice" id="updateSummary">正在执行 git pull…</div>
+          <pre class="update-output" id="updateOutput"></pre>
+          <div class="row" style="margin-top:12px">
+            <button class="btn small secondary" id="btnUpdateAgain">再检查一次</button>
+            <span class="muted">更新只拉取代码；生效需再点「安全重启服务」。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button class="btn secondary small" id="btnUpdate">检查更新（git pull）</button>
+  <button class="btn secondary small" id="btnRestart">安全重启服务</button>
+  <button class="btn danger small" id="btnShutdown">安全退出服务</button>
+</footer>
+
+<script src="/admin_static/app.js"></script>
+</body>
+</html>

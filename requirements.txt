@@ -1,0 +1,15 @@
+# Nascence Huiye 依赖清单（WebUI + llama.cpp 本地化）
+# 说明：已移除 PyQt5（原桌面控制面板改为 WebUI）。
+# 若模型选择"本地默认（llama.cpp）"，需要系统级 llama-server（setup 脚本下载），
+# Python 侧无需额外深度学习依赖。
+
+aiofiles>=25.1.0
+aiohttp>=3.14.1
+faiss-cpu>=1.14.3
+jieba>=0.42.1
+numpy>=1.26.4
+openai>=2.44.0
+Pillow>=10.0.0
+psutil>=5.9.0
+requests>=2.34.2
+websockets>=16.1
